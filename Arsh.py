@@ -1,141 +1,161 @@
 import random
 import time
 
-print("\nWelcome to Hangman game by Arsh\n")
-time.sleep(2)
-print("The game is about to start!\n Let's play Hangman!")
-time.sleep(3)
-
-
+word_list = [
+    'wares',
+    'soup',
+    'mount',
+    'extend',
+    'brown',
+    'expert',
+    'tired',
+    'humidity',
+    'backpack',
+    'crust',
+    'dent',
+    'market',]
 
 def main():
-    global count
-    global display
-    global word
-    global already_guessed
-    global length
-    global toPrint
-
-    words_to_guess = ["hotel","coffee","image","country","teaching","television","chocolate","doll","courage","damage","foundation"]
-    word = random.choice(words_to_guess)
-    toPrint = word
-    length = len(word)
-    count = 0
-    display = '_' * length
-    already_guessed = []
-    
+    word = get_word()
+    play(word)
+    while input("Play Again? (Y/N) ").upper() == "Y":
+        word = get_word()
+        play(word)
 
 
-def play_loop():
-    global play_game
-    play_game = input("Do You want to play again? y = yes, n = no \n")
-    while play_game not in ["y", "n","Y","N"]:
-        play_game = input("Do You want to play again? y = yes, n = no \n")
-    if play_game == "y" or play_game == "Y":
-        main()
-    elif play_game == "n" or play_game == "N":
-        print("Thanks For Playing!")
-        exit()
-
-def hangman():
-    global count
-    global display
-    global word
-    global already_guessed
-    global play_game
-
-    limit = 5
-    guess = input("This is the Hangman Word: " + display + " Enter your guess: \n")
-    guess = guess.strip()
-    if len(guess.strip()) == 0 or len(guess.strip()) >= 2 or type(guess) == int:
-        print("Invalid Input, Try a letter\n")
-        hangman()
+def get_word():
+    word = random.choice(word_list)
+    return word.upper()
 
 
-    elif guess in word:
-        already_guessed.extend([guess])
-        index = word.find(guess)
-        word = word[:index] + "_" + word[index + 1:]
-        display = display[:index] + guess + display[index + 1:]
-        print(display + "\n")
-
-    elif guess in already_guessed:
-        print("Try another letter.\n")
-
+def play(word):
+    word_completion = "_" * len(word)
+    guessed = False
+    guessed_letters = []
+    guessed_words = []
+    tries = 6
+    print("\nWelcome to Hangman game by Arsh\n")
+    time.sleep(2)
+    print("The game is about to start!\nLet's play Hangman!")
+    time.sleep(3)
+    print(display_hangman(tries))
+    print(word_completion)
+    print("\n")
+    while not guessed and tries > 0:
+        guess = input("Please guess a letter or word: ").upper()
+        if len(guess) == 1 and guess.isalpha():
+            if guess in guessed_letters:
+                print("You already guessed the letter", guess)
+            elif guess not in word:
+                print(guess, "is not in the word.")
+                tries -= 1
+                guessed_letters.append(guess)
+            else:
+                print("Good job,", guess, "is in the word!")
+                guessed_letters.append(guess)
+                word_as_list = list(word_completion)
+                indices = [i for i, letter in enumerate(word) if letter == guess]
+                for index in indices:
+                    word_as_list[index] = guess
+                word_completion = "".join(word_as_list)
+                if "_" not in word_completion:
+                    guessed = True
+        elif len(guess) == len(word) and guess.isalpha():
+            if guess in guessed_words:
+                print("You already guessed the word", guess)
+            elif guess != word:     
+                print(guess, "is not the word.")
+                tries -= 1
+                guessed_words.append(guess)
+            else:
+                guessed = True
+                word_completion = word
+        else:
+            print("Not a valid guess.")
+        print(display_hangman(tries))
+        print(word_completion)
+        print("\n")
+    if guessed:
+        print("Congrats, you guessed the word! You win!")
     else:
-        count += 1
+        print("Sorry, you ran out of tries. The word was " + word + ". Maybe next time!")
 
-        if count == 1:
-            time.sleep(1)
-            print("   _____ \n"
-                  "  |      \n"
-                  "  |      \n"
-                  "  |      \n"
-                  "  |      \n"
-                  "  |      \n"
-                  "  |      \n"
-                  "__|__\n")
-            print("Wrong guess. " + str(limit - count) + " guesses remaining\n")
-
-        elif count == 2:
-            time.sleep(1)
-            print("   _____ \n"
-                  "  |     | \n"
-                  "  |     |\n"
-                  "  |      \n"
-                  "  |      \n"
-                  "  |      \n"
-                  "  |      \n"
-                  "__|__\n")
-            print("Wrong guess. " + str(limit - count) + " guesses remaining\n")
-
-        elif count == 3:
-           time.sleep(1)
-           print("   _____ \n"
-                 "  |     | \n"
-                 "  |     |\n"
-                 "  |     | \n"
-                 "  |      \n"
-                 "  |      \n"
-                 "  |      \n"
-                 "__|__\n")
-           print("Wrong guess. " + str(limit - count) + " guesses remaining\n")
-
-        elif count == 4:
-            time.sleep(1)
-            print("   _____ \n"
-                  "  |     | \n"
-                  "  |     |\n"
-                  "  |     | \n"
-                  "  |     O \n"
-                  "  |      \n"
-                  "  |      \n"
-                  "__|__\n")
-            print("Wrong guess. " + str(limit - count) + " last guess remaining\n")
-
-        elif count == 5:
-            time.sleep(1)
-            print("   _____ \n"
-                  "  |     | \n"
-                  "  |     |\n"
-                  "  |     | \n"
-                  "  |     O \n"
-                  "  |    /|\ \n"
-                  "  |    / \ \n"
-                  "__|__\n")
-            print("Wrong guess. You are hanged!!!\n")
-            print("The word was:",toPrint)
-            play_loop()
-
-    if word == '_' * length:
-        print("Congrats! You have guessed the word correctly!")
-        play_loop()
-
-    elif count != limit:
-        hangman()
+        #end of play function
 
 
-main()
-hangman()
+def display_hangman(tries):
+    stages = [ 
+                """
+                   --------
+                   |      |
+                   |      O
+                   |     \\|/
+                   |      |
+                   |     / \\
+                   -
+                """,
+                
+                """
+                   --------
+                   |      |
+                   |      O
+                   |     \\|/
+                   |      |
+                   |     / 
+                   -
+                """,
+                
+                """
+                   --------
+                   |      |
+                   |      O
+                   |     \\|/
+                   |      |
+                   |      
+                   -
+                """,
+                
+                """
+                   --------
+                   |      |
+                   |      O
+                   |     \\|
+                   |      |
+                   |     
+                   -
+                """,
+                
+                """
+                   --------
+                   |      |
+                   |      O
+                   |      |
+                   |      |
+                   |     
+                   -
+                """,
+            
+                """
+                   --------
+                   |      |
+                   |      O
+                   |    
+                   |      
+                   |     
+                   -
+                """,
 
-# Code ends here
+                """
+                   --------
+                   |      |
+                   |      
+                   |    
+                   |      
+                   |     
+                   -
+                """
+    ]
+    return stages[tries]
+
+if __name__ == "__main__":
+    main()
